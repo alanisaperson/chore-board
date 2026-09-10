@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Household Board</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6EE;
+    --paper-raised:#FFFFFF;
+    --ink:#2B2620;
+    --ink-soft:#6B6255;
+    --line:rgba(43,38,32,0.12);
+    --a:#E0724A;
+    --a-soft:#FBE3D8;
+    --i:#3E7C6B;
+    --i-soft:#DEEAE6;
+    --gold:#C9962C;
+    --gold-soft:#F6E7C6;
+    --sage:#DCE7D8;
+    --danger:#B24444;
+    --shadow: 0 1px 2px rgba(43,38,32,0.06), 0 8px 24px -12px rgba(43,38,32,0.18);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1E1A15;
+      --paper-raised:#2A241D;
+      --ink:#F3ECDF;
+      --ink-soft:#B9AF9E;
+      --line:rgba(243,236,223,0.14);
+      --a:#F0916A;
+      --a-soft:#40281F;
+      --i:#79C0AA;
+      --i-soft:#1E3831;
+      --gold:#E7BE6B;
+      --gold-soft:#3B3120;
+      --sage:#243A2A;
+      --danger:#E28A8A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1E1A15;
+    --paper-raised:#2A241D;
+    --ink:#F3ECDF;
+    --ink-soft:#B9AF9E;
+    --line:rgba(243,236,223,0.14);
+    --a:#F0916A;
+    --a-soft:#40281F;
+    --i:#79C0AA;
+    --i-soft:#1E3831;
+    --gold:#E7BE6B;
+    --gold-soft:#3B3120;
+    --sage:#243A2A;
+    --danger:#E28A8A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Karla", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+    touch-action:manipulation;
+    overscroll-behavior:none;
+    -webkit-overflow-scrolling:touch;
+    overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:"Fraunces", Georgia, serif; margin:0; text-wrap:balance; }
+  button{ font-family:inherit; }
+
+  #app{
+    min-height:100%;
+    padding: calc(env(safe-area-inset-top,0px) + 18px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 24px) calc(env(safe-area-inset-left,0px) + 16px);
+    display:flex; flex-direction:column; gap:18px;
+    max-width:720px; margin:0 auto;
+  }
+
+  .topbar{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
+  .eyebrow{ display:block; font-size:12px; letter-spacing:0.11em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; margin-bottom:2px; }
+  .topbar h1{ font-size:clamp(22px,6vw,30px); font-weight:600; line-height:1.1; }
+  .gear{
+    width:44px; height:44px; flex:0 0 auto; border-radius:50%;
+    border:1px solid var(--line); background:var(--paper-raised); color:var(--ink);
+    font-size:20px; display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow); cursor:pointer;
+  }
+  .gear:active{ transform:scale(0.94); }
+
+  .board{ display:flex; flex-direction:column; gap:16px; }
+  .kid-card{
+    background:var(--paper-raised); border-radius:var(--radius-lg);
+    padding:16px 16px 18px; box-shadow:var(--shadow);
+    border-top:4px solid var(--kid-accent, var(--a));
+    position:relative;
+  }
+  .kid-card.a{ --kid-accent:var(--a); --kid-soft:var(--a-soft); }
+  .kid-card.i{ --kid-accent:var(--i); --kid-soft:var(--i-soft); }
+
+  .kid-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .kid-head h2{ font-size:22px; font-weight:600; color:var(--kid-accent); }
+  .balance{ display:flex; align-items:baseline; gap:4px; background:var(--gold-soft); color:var(--gold); padding:6px 12px; border-radius:999px; }
+  .balance-num{ font-family:"Fraunces",serif; font-weight:700; font-size:20px; font-variant-numeric:tabular-nums; }
+  .balance-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
+
+  .reset-caption{ font-size:11px; color:var(--ink-soft); margin:-8px 0 12px; }
+
+  .complete-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700;
+    background:var(--sage); color:var(--ink); padding:6px 12px; border-radius:999px; margin-bottom:12px;
+  }
+
+  .period-label{
+    display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft);
+    margin:16px 0 8px;
+  }
+  .period-label:first-of-type{ margin-top:0; }
+  @media (prefers-reduced-motion:no-preference){
+    .complete-badge{ animation:pop .5s ease; }
+    @keyframes pop{ 0%{ transform:scale(0.85); opacity:0; } 60%{ transform:scale(1.04); opacity:1; } 100%{ transform:scale(1); } }
+  }
+
+  .tasklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .task{
+    display:flex; align-items:center; gap:12px; min-height:60px;
+    padding:8px 12px; border-radius:var(--radius-md); border:1px solid var(--line);
+    cursor:pointer;
+  }
+  .task:active{ transform:scale(0.99); }
+  .task.done{ background:var(--sage); border-color:transparent; }
+  .check{
+    flex:0 0 auto; width:30px; height:30px; border-radius:50%;
+    border:2px solid var(--kid-accent); position:relative;
+  }
+  .task.done .check{ background:var(--kid-accent); }
+  .task.done .check::after{
+    content:""; position:absolute; left:9px; top:4px; width:8px; height:14px;
+    border-right:3px solid var(--paper-raised); border-bottom:3px solid var(--paper-raised);
+    transform:rotate(40deg);
+  }
+  .ticon{ font-size:22px; flex:0 0 auto; }
+  .tlabel{ flex:1 1 auto; font-size:16px; font-weight:600; min-width:0; overflow-wrap:anywhere; }
+  .task.done .tlabel{ color:var(--ink-soft); text-decoration:line-through; text-decoration-thickness:1.5px; }
+  .tpoints{ flex:0 0 auto; font-size:13px; font-weight:700; color:var(--gold); font-variant-numeric:tabular-nums; }
+
+  .weekstrip{ display:flex; gap:6px; margin-top:14px; }
+  .wdot{ flex:1 1 0; height:8px; border-radius:5px; background:var(--line); }
+  .wdot.full{ background:var(--kid-accent); }
+  .wdot.partial{ background:var(--kid-soft); }
+  .wdot.today{ outline:2px solid var(--kid-accent); outline-offset:1px; }
+
+  .prizes{ margin-top:16px; padding-top:14px; border-top:1px dashed var(--line); }
+  .prizes h3{ font-size:13px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); font-weight:700; margin-bottom:10px; }
+  .prize-row{ display:grid; grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:8px; }
+  .prize{
+    display:flex; flex-direction:column; align-items:flex-start; gap:4px;
+    background:var(--kid-soft); border:1px solid transparent; border-radius:var(--radius-md);
+    padding:10px 12px; min-height:74px; text-align:left;
+  }
+  .prize .picon{ font-size:18px; }
+  .prize .plabel{ font-size:13px; font-weight:700; line-height:1.2; }
+  .prize .pcost{ font-size:12px; color:var(--gold); font-weight:700; font-variant-numeric:tabular-nums; }
+  .prize.locked{ opacity:0.45; }
+  .prize:active:not(.locked){ transform:scale(0.97); }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,16,10,0.45);
+    display:flex; justify-content:flex-end; z-index:20;
+  }
+  .overlay[hidden]{ display:none; }
+  .overlay.center{ justify-content:center; align-items:center; padding:20px; }
+  .panel{
+    background:var(--paper); width:min(420px,100%); height:100%;
+    padding: calc(env(safe-area-inset-top,0px) + 16px) 18px calc(env(safe-area-inset-bottom,0px) + 20px);
+    overflow-y:auto; box-shadow:-8px 0 24px rgba(0,0,0,0.2);
+    display:flex; flex-direction:column; gap:20px;
+  }
+  .card-modal{
+    background:var(--paper-raised); border-radius:var(--radius-lg); padding:20px;
+    width:min(340px,100%); box-shadow:var(--shadow); display:flex; flex-direction:column; gap:14px;
+  }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; }
+  .panel-head h2{ font-size:22px; }
+  .iconbtn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background:var(--paper-raised); color:var(--ink); font-size:16px; cursor:pointer;
+  }
+  .setting-block{ display:flex; flex-direction:column; gap:10px; }
+  .setting-block h3{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); font-weight:700; }
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-md); padding:12px 14px; }
+  .switch{ width:44px; height:26px; border-radius:999px; background:var(--line); position:relative; border:none; cursor:pointer; flex:0 0 auto; }
+  .switch.on{ background:var(--i); }
+  .switch::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--paper-raised); transition:transform .15s ease; }
+  .switch.on::after{ transform:translateX(18px); }
+
+  .edit-row{ display:flex; align-items:center; gap:8px; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-md); padding:8px 8px; }
+  .edit-row input[type="text"]{ flex:1 1 auto; min-width:0; }
+  .icon-input{ width:40px; text-align:center; padding:8px 2px !important; }
+  .pts-input{ width:52px; text-align:center; }
+  input[type="text"], input[type="number"]{
+    font-family:inherit; font-size:15px; padding:8px 10px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--paper); color:var(--ink); min-height:38px;
+  }
+  .remove-btn{
+    flex:0 0 auto; width:34px; height:34px; border-radius:50%; border:none;
+    background:transparent; color:var(--danger); font-size:18px; cursor:pointer;
+  }
+  .add-btn{
+    align-self:flex-start; border:1px dashed var(--line); background:transparent; color:var(--ink-soft);
+    font-weight:700; font-size:14px; padding:10px 14px; border-radius:var(--radius-md); cursor:pointer;
+  }
+  .add-btn:active{ background:var(--line); }
+
+  .danger-btn{ background:transparent; border:1px solid var(--danger); color:var(--danger); font-weight:700; border-radius:var(--radius-md); padding:10px 14px; cursor:pointer; }
+
+  .segmented{ display:flex; gap:8px; }
+  .seg-btn{ flex:1 1 0; padding:10px 8px; border-radius:var(--radius-md); border:1px solid var(--line); background:var(--paper-raised); color:var(--ink); font-weight:700; font-size:13px; cursor:pointer; }
+  .seg-btn.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .setting-note{ font-size:12px; color:var(--ink-soft); margin:0; line-height:1.4; }
+  .subgroup-title{ font-size:12px; font-weight:700; color:var(--ink-soft); margin:6px 0 -2px; }
+
+  .modal-title{ font-size:19px; }
+  .modal-actions{ display:flex; gap:10px; }
+  .btn{ flex:1 1 0; padding:12px 14px; border-radius:var(--radius-md); border:none; font-weight:700; font-size:15px; cursor:pointer; }
+  .btn.primary{ background:var(--kid-accent, var(--a)); color:#fff; }
+  .btn.ghost{ background:var(--line); color:var(--ink); }
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 22px); transform:translate(-50%,0);
+    background:var(--ink); color:var(--paper); padding:12px 18px; border-radius:999px;
+    font-weight:700; font-size:14px; box-shadow:var(--shadow); z-index:30; opacity:0; pointer-events:none;
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .toast.show{ animation:toastin 2.2s ease forwards; }
+    @keyframes toastin{ 0%{ opacity:0; transform:translate(-50%,8px);} 12%{ opacity:1; transform:translate(-50%,0);} 82%{ opacity:1;} 100%{ opacity:0; } }
+  }
+  .toast.show:not(.motion-ok){ opacity:1; }
+
+  footer.hint{ text-align:center; font-size:12px; color:var(--ink-soft); padding-top:4px; }
+
+  @media (min-width:640px){
+    .board{ flex-direction:row; align-items:flex-start; }
+    .kid-card{ flex:1 1 0; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div class="overlay" id="settingsOverlay" hidden>
+  <div class="panel" role="dialog" aria-label="Settings">
+    <div class="panel-head">
+      <h2>Settings</h2>
+      <button class="iconbtn" data-action="close-settings" aria-label="Close">✕</button>
+    </div>
+    <div id="settingsBody" style="display:flex; flex-direction:column; gap:22px;"></div>
+  </div>
+</div>
+
+<div class="overlay center" id="confirmOverlay" hidden>
+  <div class="card-modal" id="confirmCard"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var STORE_KEY = "choreboard.v1";
+  var DAY_MS = 24*60*60*1000;
+
+  function uid(){ return Math.random().toString(36).slice(2,9); }
+
+  var PERIODS = ["morning","evening"];
+  var PERIOD_LABEL = { morning:"Morning", evening:"Evening" };
+  var PERIOD_ICON = { morning:"☀️", evening:"🌙" };
+
+  function defaultState(){
+    return {
+      kids: [
+        { id:"A", name:"A", mode:"points", visible:true },
+        { id:"I", name:"I", mode:"simple", visible:true }
+      ],
+      routines: {
+        A: {
+          morning: [
+            { id:uid(), label:"Get dressed", icon:"👕", points:2 },
+            { id:uid(), label:"Make bed", icon:"🛏️", points:2 },
+            { id:uid(), label:"Brush teeth", icon:"🦷", points:2 },
+            { id:uid(), label:"Pack school bag", icon:"🎒", points:3 },
+            { id:uid(), label:"Empty dishwasher", icon:"🍽️", points:3 }
+          ],
+          evening: [
+            { id:uid(), label:"Brush teeth", icon:"🦷", points:2 },
+            { id:uid(), label:"Unpack school bag", icon:"🎒", points:2 },
+            { id:uid(), label:"Load dishwasher", icon:"🍽️", points:3 },
+            { id:uid(), label:"Tidy room", icon:"🧸", points:3 },
+            { id:uid(), label:"Read 10 minutes", icon:"📖", points:4 }
+          ]
+        },
+        I: {
+          morning: [
+            { id:uid(), label:"Get dressed", icon:"👕" },
+            { id:uid(), label:"Brush teeth", icon:"🦷" }
+          ],
+          evening: [
+            { id:uid(), label:"Brush teeth", icon:"🦷" },
+            { id:uid(), label:"Put toys away", icon:"🧸" }
+          ]
+        }
+      },
+      prizes: [
+        { id:uid(), label:"Extra 15 min screen time", icon:"🎮", cost:15 },
+        { id:uid(), label:"Stay up 20 min later", icon:"🌙", cost:25 },
+        { id:uid(), label:"Choose Sunday breakfast", icon:"🥞", cost:20 },
+        { id:uid(), label:"Pick the film Friday", icon:"🎬", cost:30 },
+        { id:uid(), label:"Ice cream trip", icon:"🍦", cost:50 }
+      ],
+      settings: { pointsReset:"never" },
+      days: {},
+      redemptions: []
+    };
+  }
+
+  // Migrate a pre-morning/evening routine (a flat array) into { morning, evening }.
+  function migrateRoutines(routines){
+    var out = {};
+    for(var kidId in routines){
+      var val = routines[kidId];
+      if(Array.isArray(val)){
+        out[kidId] = { morning: val, evening: [] };
+      } else {
+        out[kidId] = { morning: (val && val.morning) || [], evening: (val && val.evening) || [] };
+      }
+    }
+    return out;
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      if(!parsed || !parsed.kids || !parsed.routines) return defaultState();
+      if(!parsed.redemptions) parsed.redemptions = [];
+      if(!parsed.days) parsed.days = {};
+      if(!parsed.settings) parsed.settings = { pointsReset:"never" };
+      if(!parsed.settings.pointsReset) parsed.settings.pointsReset = "never";
+      parsed.routines = migrateRoutines(parsed.routines);
+      return parsed;
+    }catch(e){ return defaultState(); }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ /* storage unavailable: continue in-memory */ }
+  }
+
+  var state = loadState();
+
+  function todayStr(d){
+    var dt = d || new Date();
+    var y = dt.getFullYear();
+    var m = String(dt.getMonth()+1).padStart(2,"0");
+    var day = String(dt.getDate()).padStart(2,"0");
+    return y+"-"+m+"-"+day;
+  }
+
+  function dayRecord(dateStr, kidId){
+    if(!state.days[dateStr]) state.days[dateStr] = {};
+    if(!state.days[dateStr][kidId]) state.days[dateStr][kidId] = { done: [] };
+    return state.days[dateStr][kidId];
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  function routineItems(kidId){
+    var r = state.routines[kidId] || { morning:[], evening:[] };
+    return (r.morning||[]).concat(r.evening||[]);
+  }
+  function totalRoutineCount(kidId){ return routineItems(kidId).length; }
+  function findRoutineItem(kidId, itemId){
+    var all = routineItems(kidId);
+    for(var i=0;i<all.length;i++){ if(all[i].id === itemId) return all[i]; }
+    return null;
+  }
+
+  // Monday 00:00 of the current week, as a timestamp.
+  function startOfWeekMs(){
+    var d = new Date(); d.setHours(0,0,0,0);
+    var day = d.getDay();
+    var diff = (day === 0) ? -6 : (1 - day);
+    d.setDate(d.getDate() + diff);
+    return d.getTime();
+  }
+
+  function balanceFor(kidId){
+    var total = 0;
+    var weekly = state.settings.pointsReset === "weekly";
+    var cutoff = weekly ? startOfWeekMs() : -Infinity;
+    for(var date in state.days){
+      if(new Date(date+"T00:00:00").getTime() < cutoff) continue;
+      var rec = state.days[date][kidId];
+      if(rec && rec.done){
+        for(var i=0;i<rec.done.length;i++){ total += (rec.done[i].points || 0); }
+      }
+    }
+    state.redemptions.forEach(function(r){
+      if(r.kidId === kidId && r.at >= cutoff) total -= r.cost;
+    });
+    return Math.max(0, total);
+  }
+
+  function isDoneToday(kidId, itemId){
+    var rec = dayRecord(todayStr(), kidId);
+    return rec.done.some(function(d){ return d.id === itemId; });
+  }
+
+  function toggleTask(kidId, itemId){
+    var kid = state.kids.find(function(k){ return k.id === kidId; });
+    var item = findRoutineItem(kidId, itemId);
+    if(!item) return;
+    var rec = dayRecord(todayStr(), kidId);
+    var idx = rec.done.findIndex(function(d){ return d.id === itemId; });
+    var justCompleted = false;
+    if(idx >= 0){
+      rec.done.splice(idx,1);
+    } else {
+      rec.done.push({ id:itemId, points: item.points || 0 });
+      justCompleted = true;
+    }
+    saveState();
+    render();
+    var total = totalRoutineCount(kidId);
+    if(justCompleted && rec.done.length === total && total > 0){
+      showToast((kid ? kid.name : "") + " finished today's list! 🎉");
+    }
+  }
+
+  function weekDots(kidId){
+    var total = totalRoutineCount(kidId);
+    var out = [];
+    for(var i=6;i>=0;i--){
+      var d = new Date(Date.now() - i*DAY_MS);
+      var ds = todayStr(d);
+      var rec = state.days[ds] && state.days[ds][kidId];
+      var doneCount = rec ? rec.done.length : 0;
+      var cls = "wdot";
+      if(total && doneCount >= total) cls += " full";
+      else if(doneCount > 0) cls += " partial";
+      if(i===0) cls += " today";
+      out.push('<span class="'+cls+'"></span>');
+    }
+    return out.join("");
+  }
+
+  function renderTaskList(kid, period){
+    var items = (state.routines[kid.id] && state.routines[kid.id][period]) || [];
+    var pointsMode = kid.mode === "points";
+    if(!items.length) return "";
+    var tasksHtml = items.map(function(item){
+      var done = isDoneToday(kid.id, item.id);
+      return '<li class="task'+(done?' done':'')+'" data-action="toggle" data-kid="'+kid.id+'" data-item="'+item.id+'">'
+        + '<span class="check"></span>'
+        + '<span class="ticon">'+escapeHtml(item.icon||"⭐")+'</span>'
+        + '<span class="tlabel">'+escapeHtml(item.label)+'</span>'
+        + (pointsMode ? '<span class="tpoints">+'+ (item.points||0) +'</span>' : '')
+        + '</li>';
+    }).join("");
+    return '<div class="period-label">'+PERIOD_ICON[period]+' '+PERIOD_LABEL[period]+'</div>'
+      + '<ul class="tasklist">'+tasksHtml+'</ul>';
+  }
+
+  function renderKidCard(kid){
+    var rec = dayRecord(todayStr(), kid.id);
+    var pointsMode = kid.mode === "points";
+    var total = totalRoutineCount(kid.id);
+    var allDone = total > 0 && rec.done.length >= total;
+    var weekly = state.settings.pointsReset === "weekly";
+
+    var tasksHtml = PERIODS.map(function(p){ return renderTaskList(kid, p); }).join("");
+
+    var prizesHtml = "";
+    if(pointsMode){
+      var bal = balanceFor(kid.id);
+      var rows = state.prizes.map(function(p){
+        var locked = bal < p.cost;
+        return '<button class="prize'+(locked?' locked':'')+'" data-action="redeem" data-kid="'+kid.id+'" data-prize="'+p.id+'">'
+          + '<span class="picon">'+escapeHtml(p.icon||"🎁")+'</span>'
+          + '<span class="plabel">'+escapeHtml(p.label)+'</span>'
+          + '<span class="pcost">'+p.cost+' pts</span>'
+          + '</button>';
+      }).join("");
+      prizesHtml = '<div class="prizes"><h3>Prize shelf</h3><div class="prize-row">'+rows+'</div></div>';
+    }
+
+    return '<section class="kid-card '+kid.id.toLowerCase()+'">'
+      + '<div class="kid-head"><h2>'+escapeHtml(kid.name)+'</h2>'
+      + (pointsMode ? '<div class="balance"><span class="balance-num">'+balanceFor(kid.id)+'</span><span class="balance-label">pts</span></div>' : '')
+      + '</div>'
+      + (pointsMode && weekly ? '<div class="reset-caption">Points reset every Monday</div>' : '')
+      + (allDone ? '<div class="complete-badge">✓ All done today</div>' : '')
+      + tasksHtml
+      + '<div class="weekstrip">'+weekDots(kid.id)+'</div>'
+      + prizesHtml
+      + '</section>';
+  }
+
+  function render(){
+    var now = new Date();
+    var weekday = now.toLocaleDateString(undefined,{ weekday:"long" });
+    var dateLabel = now.toLocaleDateString(undefined,{ day:"numeric", month:"long" });
+    var visibleKids = state.kids.filter(function(k){ return k.visible; });
+
+    var html = '<header class="topbar">'
+      + '<div class="brand"><span class="eyebrow">Today</span><h1>'+weekday+', '+dateLabel+'</h1></div>'
+      + '<button class="gear" data-action="open-settings" aria-label="Settings">⚙</button>'
+      + '</header>'
+      + '<main class="board">' + visibleKids.map(renderKidCard).join("") + '</main>'
+      + '<footer class="hint">Tap a task to tick it off &middot; only today\'s tasks count</footer>';
+
+    document.getElementById("app").innerHTML = html;
+  }
+
+  // ---- toast ----
+  var toastTimer;
+  function showToast(msg){
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.remove("show");
+    void t.offsetWidth;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+  }
+
+  // ---- redemption confirm ----
+  function openRedeemConfirm(kidId, prizeId){
+    var kid = state.kids.find(function(k){ return k.id === kidId; });
+    var prize = state.prizes.find(function(p){ return p.id === prizeId; });
+    if(!kid || !prize) return;
+    var bal = balanceFor(kidId);
+    if(bal < prize.cost){
+      showToast("Not enough points yet for that one.");
+      return;
+    }
+    var card = document.getElementById("confirmCard");
+    card.style.setProperty("--kid-accent", kid.id === "A" ? "var(--a)" : "var(--i)");
+    card.innerHTML = '<h3 class="modal-title">Redeem '+escapeHtml(prize.icon||"🎁")+' '+escapeHtml(prize.label)+'?</h3>'
+      + '<p style="margin:0;color:var(--ink-soft);">This uses '+prize.cost+' of '+kid.name+'\'s '+bal+' points.</p>'
+      + '<div class="modal-actions">'
+      + '<button class="btn ghost" data-action="cancel-redeem">Cancel</button>'
+      + '<button class="btn primary" data-action="confirm-redeem" data-kid="'+kidId+'" data-prize="'+prizeId+'">Redeem</button>'
+      + '</div>';
+    document.getElementById("confirmOverlay").hidden = false;
+  }
+  function closeRedeemConfirm(){ document.getElementById("confirmOverlay").hidden = true; }
+
+  function doRedeem(kidId, prizeId){
+    var kid = state.kids.find(function(k){ return k.id === kidId; });
+    var prize = state.prizes.find(function(p){ return p.id === prizeId; });
+    if(!kid || !prize) return;
+    if(balanceFor(kidId) < prize.cost){ closeRedeemConfirm(); showToast("Not enough points yet for that one."); return; }
+    state.redemptions.push({ id:uid(), kidId:kidId, prizeId:prizeId, label:prize.label, cost:prize.cost, at:Date.now() });
+    saveState();
+    closeRedeemConfirm();
+    render();
+    showToast(kid.name + " redeemed " + prize.label + "!");
+  }
+
+  // ---- settings ----
+  function renderSettings(){
+    var body = document.getElementById("settingsBody");
+    var iKid = state.kids.find(function(k){ return k.id === "I"; });
+
+    var visBlock = '<div class="setting-block">'
+      + '<h3>Kids</h3>'
+      + '<div class="toggle-row"><span>Show '+escapeHtml(iKid.name)+'\'s list</span>'
+      + '<button class="switch'+(iKid.visible?' on':'')+'" data-action="toggle-visible" data-kid="I" aria-label="Toggle visibility"></button>'
+      + '</div></div>';
+
+    function periodRows(kid, period){
+      var items = (state.routines[kid.id] && state.routines[kid.id][period]) || [];
+      var pointsMode = kid.mode === "points";
+      var rows = items.map(function(it){
+        return '<div class="edit-row">'
+          + '<input type="text" class="icon-input" maxlength="4" value="'+escapeHtml(it.icon||"")+'" data-field="icon" data-kid="'+kid.id+'" data-item="'+it.id+'">'
+          + '<input type="text" value="'+escapeHtml(it.label)+'" data-field="label" data-kid="'+kid.id+'" data-item="'+it.id+'">'
+          + (pointsMode ? '<input type="number" class="pts-input" min="1" max="99" value="'+(it.points||1)+'" data-field="points" data-kid="'+kid.id+'" data-item="'+it.id+'">' : '')
+          + '<button class="remove-btn" data-action="remove-routine" data-kid="'+kid.id+'" data-item="'+it.id+'" aria-label="Remove">✕</button>'
+          + '</div>';
+      }).join("");
+      return '<div class="subgroup-title">'+PERIOD_ICON[period]+' '+PERIOD_LABEL[period]+'</div>'
+        + rows
+        + '<button class="add-btn" data-action="add-routine" data-kid="'+kid.id+'" data-period="'+period+'">+ Add '+PERIOD_LABEL[period].toLowerCase()+' task</button>';
+    }
+
+    function routineBlock(kid){
+      return '<div class="setting-block">'
+        + '<h3>'+escapeHtml(kid.name)+'\'s daily routine</h3>'
+        + PERIODS.map(function(p){ return periodRows(kid, p); }).join("")
+        + '</div>';
+    }
+
+    var prizeRows = state.prizes.map(function(p){
+      return '<div class="edit-row">'
+        + '<input type="text" class="icon-input" maxlength="4" value="'+escapeHtml(p.icon||"")+'" data-field="icon" data-prize="'+p.id+'">'
+        + '<input type="text" value="'+escapeHtml(p.label)+'" data-field="label" data-prize="'+p.id+'">'
+        + '<input type="number" class="pts-input" min="1" max="999" value="'+p.cost+'" data-field="cost" data-prize="'+p.id+'">'
+        + '<button class="remove-btn" data-action="remove-prize" data-prize="'+p.id+'" aria-label="Remove">✕</button>'
+        + '</div>';
+    }).join("");
+    var prizeBlock = '<div class="setting-block"><h3>Prize shelf</h3>'+prizeRows
+      + '<button class="add-btn" data-action="add-prize">+ Add prize</button></div>';
+
+    var resetMode = state.settings.pointsReset;
+    var pointsBlock = '<div class="setting-block"><h3>Points</h3>'
+      + '<div class="segmented">'
+      + '<button class="seg-btn'+(resetMode==="never"?" active":"")+'" data-action="set-reset-mode" data-mode="never">Build up over time</button>'
+      + '<button class="seg-btn'+(resetMode==="weekly"?" active":"")+'" data-action="set-reset-mode" data-mode="weekly">Reset every Monday</button>'
+      + '</div>'
+      + '<p class="setting-note">'+(resetMode==="weekly"
+          ? "Any points not spent by Monday morning are cleared — everyone starts the week back at zero."
+          : "Points bank up indefinitely and never expire.")
+      + '</p></div>';
+
+    var dangerBlock = '<div class="setting-block"><h3>Reset</h3>'
+      + '<button class="danger-btn" data-action="reset-all">Clear all history &amp; points</button></div>';
+
+    body.innerHTML = visBlock + routineBlock(state.kids.find(function(k){return k.id==="A";}))
+      + routineBlock(iKid) + prizeBlock + pointsBlock + dangerBlock;
+  }
+
+  function openSettings(){ renderSettings(); document.getElementById("settingsOverlay").hidden = false; }
+  function closeSettings(){ document.getElementById("settingsOverlay").hidden = true; render(); }
+
+  // ---- event delegation ----
+  document.body.addEventListener("click", function(e){
+    var t = e.target.closest("[data-action]");
+    if(!t) return;
+    var action = t.getAttribute("data-action");
+    switch(action){
+      case "open-settings": openSettings(); break;
+      case "close-settings": closeSettings(); break;
+      case "toggle": toggleTask(t.getAttribute("data-kid"), t.getAttribute("data-item")); break;
+      case "redeem": openRedeemConfirm(t.getAttribute("data-kid"), t.getAttribute("data-prize")); break;
+      case "cancel-redeem": closeRedeemConfirm(); break;
+      case "confirm-redeem": doRedeem(t.getAttribute("data-kid"), t.getAttribute("data-prize")); break;
+      case "toggle-visible": {
+        var kid = state.kids.find(function(k){ return k.id === t.getAttribute("data-kid"); });
+        if(kid){ kid.visible = !kid.visible; saveState(); renderSettings(); }
+        break;
+      }
+      case "add-routine": {
+        var kidId = t.getAttribute("data-kid"), period = t.getAttribute("data-period");
+        var kidDef = state.kids.find(function(k){ return k.id === kidId; });
+        var newItem = { id:uid(), label:"New task", icon:"⭐" };
+        if(kidDef.mode === "points") newItem.points = 2;
+        state.routines[kidId][period].push(newItem);
+        saveState(); renderSettings();
+        break;
+      }
+      case "remove-routine": {
+        var kidId2 = t.getAttribute("data-kid"), itemId2 = t.getAttribute("data-item");
+        PERIODS.forEach(function(p){
+          state.routines[kidId2][p] = state.routines[kidId2][p].filter(function(r){ return r.id !== itemId2; });
+        });
+        saveState(); renderSettings();
+        break;
+      }
+      case "set-reset-mode": {
+        state.settings.pointsReset = t.getAttribute("data-mode");
+        saveState(); renderSettings(); render();
+        break;
+      }
+      case "add-prize": {
+        state.prizes.push({ id:uid(), label:"New prize", icon:"🎁", cost:10 });
+        saveState(); renderSettings();
+        break;
+      }
+      case "remove-prize": {
+        var prizeId2 = t.getAttribute("data-prize");
+        state.prizes = state.prizes.filter(function(p){ return p.id !== prizeId2; });
+        saveState(); renderSettings();
+        break;
+      }
+      case "reset-all": {
+        var card = document.getElementById("confirmCard");
+        document.getElementById("confirmOverlay").hidden = false;
+        card.innerHTML = '<h3 class="modal-title">Clear all history &amp; points?</h3>'
+          + '<p style="margin:0;color:var(--ink-soft);">This wipes ticks, points and redemptions for both kids. Routines and prizes stay. This can\'t be undone.</p>'
+          + '<div class="modal-actions">'
+          + '<button class="btn ghost" data-action="cancel-redeem">Cancel</button>'
+          + '<button class="btn primary" data-action="do-reset-all">Clear it</button>'
+          + '</div>';
+        break;
+      }
+      case "do-reset-all": {
+        state.days = {}; state.redemptions = [];
+        saveState(); closeRedeemConfirm(); renderSettings(); render();
+        showToast("Cleared.");
+        break;
+      }
+    }
+  });
+
+  document.body.addEventListener("input", function(e){
+    var t = e.target;
+    var field = t.getAttribute("data-field");
+    if(!field) return;
+    if(t.hasAttribute("data-item")){
+      var kidId = t.getAttribute("data-kid"), itemId = t.getAttribute("data-item");
+      var item = findRoutineItem(kidId, itemId);
+      if(!item) return;
+      if(field === "points"){ item.points = Math.max(1, Math.min(99, parseInt(t.value,10) || 1)); }
+      else { item[field] = t.value; }
+      saveState();
+    } else if(t.hasAttribute("data-prize")){
+      var prizeId = t.getAttribute("data-prize");
+      var prize = state.prizes.find(function(p){ return p.id === prizeId; });
+      if(!prize) return;
+      if(field === "cost"){ prize.cost = Math.max(1, Math.min(999, parseInt(t.value,10) || 1)); }
+      else { prize[field] = t.value; }
+      saveState();
+    }
+  });
+
+  // click on backdrop closes overlays
+  document.getElementById("settingsOverlay").addEventListener("click", function(e){
+    if(e.target === this) closeSettings();
+  });
+  document.getElementById("confirmOverlay").addEventListener("click", function(e){
+    if(e.target === this) closeRedeemConfirm();
+  });
+
+  // ---- day rollover while the page stays open on the wall ----
+  var lastSeenDate = todayStr();
+  setInterval(function(){
+    var d = todayStr();
+    if(d !== lastSeenDate){ lastSeenDate = d; render(); }
+  }, 30000);
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible"){
+      var d = todayStr();
+      if(d !== lastSeenDate){ lastSeenDate = d; }
+      render();
+    }
+  });
+
+  render();
+
+  // ---- keep state live if this artifact is republished while open ----
+  function snapshot(){ return { state: state }; }
+  function boot(data){
+    if(data && data.state){ state = data.state; }
+    render();
+  }
+  if(window.claude && window.claude.hot){
+    window.claude.hot.snapshot(snapshot);
+    window.claude.hot.ready ? window.claude.hot.ready(boot) : boot(window.claude.hot.data || {});
+  }
+})();
+</script>
+</body>
+</html>
